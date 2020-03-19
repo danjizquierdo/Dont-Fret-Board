@@ -311,4 +311,71 @@ var Fretboard = function(config) {
     instance.draw();
 
     return instance;
+}
+
+
+
+
+// Code taken from http://bl.ocks.org/williaster/10ef968ccfdc71c30ef8 as example of dropdown
+// Function unchanged from example
+var updateBars = function(data) {
+    // First update the y-axis domain to match data
+    yScale.domain( d3.extent(data) );
+    yAxisHandleForUpdate.call(yAxis);
+
+    var bars = canvas.selectAll(".bar").data(data);
+
+    // Add bars for new data
+    bars.enter()
+      .append("rect")
+        .attr("class", "bar")
+        .attr("x", function(d,i) { return xScale( nutritionFields[i] ); })
+        .attr("width", xScale.rangeBand())
+        .attr("y", function(d,i) { return yScale(d); })
+        .attr("height", function(d,i) { return height - yScale(d); });
+
+    // Update old ones, already have x / width from before
+    bars
+        .transition().duration(250)
+        .attr("y", function(d,i) { return yScale(d); })
+        .attr("height", function(d,i) { return height - yScale(d); });
+
+    // Remove old ones
+    bars.exit().remove();
 };
+
+var dropdownChange = function() {
+    // need to grab other drop down as well
+    var newVal = d3.select(this).property('value')
+        // how to
+        newData = root + ' ' + newVal
+        // function to perform on above notes
+        function(d) {
+                    let fill = this.style.fill;
+                    this.setAttribute("stroke-width", 5 - parseInt(this.getAttribute("stroke-width")));
+                    this.style.fill = fill == "burlywood"? "lightgray" : "burlywood";
+}
+
+var dropdown = d3.select('fretboard')
+    .insert('select', 'svg')
+    .on('change', dropdownChange);
+
+dropdown.selectAll('root')
+    .data( var union = [...new Set([...allNotes, ...allNotesEnh])];)
+    .enter().append('root')
+    .attr('value', function(d) { return d; })
+    .text(function(d) {
+        return d[0].toUpperCase() + d.slice(1, d.length);
+    })
+
+dropdown.selectAll('scale')
+    .data( var scale_names = Object.keys(Scales);)
+    .enter().append('scale')
+    .attr('value', function(d) { return d; })
+    .text(function(d) {
+        return d[0].toLowerCase() + d.slice(1, d.length);
+    })
+
+
+var initialData = "C major"
+;
