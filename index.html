@@ -1,12 +1,42 @@
+<!DOCTYPE html>
 <html>
 <head>
-<link rel=”stylesheet” href=”style.css”>
-<title>Don't Fret Board - Find Your Perfect Tuning</title>
+    <meta charset="utf-8">
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <style>
+    .fretboard {
+        position: relative;
+    }
+    .tuning, .fretnum {
+        position: absolute;
+        margin: 0;
+        padding: 0;
+        font-family: Helvetica;
+        text-transform: uppercase;
+    }
+    .tuning {
+        left: 4px;
+        font-size: 10px;
+    }
+    .fretnum {
+        font-size: 8px;
+    }
+    </style>
 </head>
 <body>
-<h1>Notes on tthe fret</h1>
-<svg width=”500" height=”800" class=”fret-board”></svg>
-<script src=”https://d3js.org/d3.v5.min.js"></script>
-<script src=”script.js”></script>
 </body>
+<script src="script.js"></script>
+<script>
+    // Layout a specific scale
+var aPhrygian = Fretboard();
+aPhrygian.scale("a phrygian");
+
+// Use alternative tunings
+var aPhrygianDropD = Fretboard({tuning: Tunings.Drop_D});
+aPhrygianDropD.scale("a phrygian");
+
+// Place specific notes on specific strings, e.g. for chord voicings
+var c7add9 = Fretboard({frets: 5});
+c7add9.placeNotes("5:c3 4:e3 3:bb3 2:d4 1:g4");
+</script>
 </html>
