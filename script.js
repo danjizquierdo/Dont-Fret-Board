@@ -5,10 +5,11 @@ var allNotes = [
 var allNotesEnh = [
     "c", "db", "d", "eb", "e", "f", "gb", "g", "ab", "a", "bb", "b"
 ];
-var colors = ["red", "green", "blue", "black", "purple", "gray", "orange", "lightgray"];
+var colors = ['white', 'red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet', 'black']
+//var colors = ["red", "green", "blue", "black", "purple", "gray", "orange", "lightgray"];
 
 var Scales = {
-    // scales
+    // scales in C, can be transposed
     lydian: "c d e f# g a b",
     major: "c d e f g a b",
     mixolydian: "c d e f g a bb",
@@ -35,7 +36,7 @@ var Scales = {
     _: function(scale) { return Scales[scale].split(" "); },
 };
 
-
+// Figure out whether to flatten or sharpen
 function asOffset(note) {
     note = note.toLowerCase();
     var offset = allNotes.indexOf(note);
@@ -45,7 +46,7 @@ function asOffset(note) {
     return offset;
 }
 
-
+// Return pitch value for a note
 function absNote(note) {
     var octave = note[note.length - 1];
     var pitch = asOffset(note.slice(0, -1));
@@ -54,7 +55,7 @@ function absNote(note) {
     }
 }
 
-
+// Transpose scale to new root
 function asNotes(scale) {
     let [root, type] = scale.split(" ");
     var scaleInC = Scales._(type);
@@ -65,10 +66,11 @@ function asNotes(scale) {
     return scaleTransposed.join(" ");
 }
 
+// Returns something exactly?
 var verbatim = function(d) { return d; };
 
 
-// Fretboard
+// Fretboard, needs to be extended for custom tunings
 var Tunings = {
     E_4ths: ["e2", "a2", "d3", "g3", "c4", "f4"],
     E_std: ["e2", "a2", "d3", "g3", "b3", "e4"],
@@ -76,40 +78,46 @@ var Tunings = {
     G_open: ["d2", "g2", "d3", "g3", "b4", "d4"]
 };
 
-
+// Workhorse of the project
 var Fretboard = function(config) {
     config = config || {};
+    // not sure why we need a random id here
     var id = "fretboard-" + Math.floor(Math.random() * 1000000);
 
+    // Params of Fretboard, where to customize tunings
     var instance = {
         frets: config.frets || 12,
         strings: config.strings || 6,
-        tuning: config.tuning || Tunings.E_4ths,
+        tuning: config.tuning || Tunings.E_std,
         fretWidth: 50,
         fretHeight: 20
     };
 
+    // Return frets to draw dots on
     instance.fretsWithDots = function () {
         var allDots = [3, 5, 7, 9, 15, 17, 19, 21];
         return allDots.filter(function(v) { return v <= instance.frets; });
     };
-
+    // Return frets to draw double dots on, current config only 12
     instance.fretsWithDoubleDots = function () {
         var allDots = [12, 24];
         return allDots.filter(function(v) { return v <= instance.frets; });
     };
 
+    // Figure out height
     instance.fretboardHeight = function () {
         return (instance.strings - 1) * instance.fretHeight + 2;
     };
-
+    // Figure out weight
     instance.fretboardWidth = function() {
         return instance.frets * instance.fretWidth + 2;
     };
 
+    // Figure out margins
     instance.XMARGIN = function() { return instance.fretWidth; };
     instance.YMARGIN = function() { return instance.fretHeight; };
 
+    // Draw the container
     instance.makeContainer = function() {
         return d3
             .select("body")
@@ -123,6 +131,7 @@ var Fretboard = function(config) {
 
     instance.svgContainer = instance.makeContainer();
 
+    // Draw fretlines
     instance.drawFrets = function() {
         for(i=0; i<=instance.frets; i++) {
             let x = i * instance.fretWidth + 1 + instance.XMARGIN();
@@ -144,7 +153,7 @@ var Fretboard = function(config) {
         }
     }
 
-
+    // Draw strings
     instance.drawStrings = function() {
         for(i=0; i<instance.strings; i++) {
             instance.svgContainer
@@ -157,6 +166,7 @@ var Fretboard = function(config) {
                 .attr("stroke-width", 1)
                 ;
         }
+        // Adapt to tuning
         var placeTuning = function(d, i) {
             return (instance.strings - i) * instance.fretHeight - 5 + "px";
         };
@@ -173,7 +183,7 @@ var Fretboard = function(config) {
             ;
     };
 
-
+    // Draw fretDots
     instance.drawDots = function() {
         var p = instance.svgContainer
             .selectAll("circle")
@@ -183,7 +193,7 @@ var Fretboard = function(config) {
             .append("circle")
             .attr("cx", function(d) { return (d - 1) * instance.fretWidth + instance.fretWidth/2 + instance.XMARGIN(); })
             .attr("cy", instance.fretboardHeight()/2 + instance.YMARGIN())
-            .attr("r", 4).style("fill", "#ddd");
+            .attr("r", 4).style("fill", "#8B4513");
 
         var p = instance.svgContainer
             .selectAll(".octave")
@@ -194,16 +204,16 @@ var Fretboard = function(config) {
             .attr("class", "octave")
             .attr("cx", function(d) { return (d - 1) * instance.fretWidth + instance.fretWidth/2 + instance.XMARGIN(); })
             .attr("cy", instance.fretHeight * 3/2 + instance.YMARGIN())
-            .attr("r", 4).style("fill", "#ddd");
+            .attr("r", 4).style("fill", "#8B4513");
         p.enter()
             .append("circle")
             .attr("class", "octave")
             .attr("cx", function(d) { return (d - 1) * instance.fretWidth + instance.fretWidth/2 + instance.XMARGIN(); })
             .attr("cy", instance.fretHeight * 7/2 + instance.YMARGIN())
-            .attr("r", 4).style("fill", "#ddd");
+            .attr("r", 4).style("fill", "#8B4513");
     };
 
-
+    // Initialize drawings
     instance.draw = function() {
         instance.drawFrets();
         instance.drawStrings();
@@ -226,11 +236,11 @@ var Fretboard = function(config) {
                 // 0.75 is the offset into the fret (higher is closest to fret)
                 .attr("cx", (absPitch - basePitch + 0.75) * instance.fretWidth)
                 .attr("cy", (string - 1) * instance.fretHeight + 1 + instance.YMARGIN())
-                .attr("r", 6).style("stroke", color).style("fill", "white")
+                .attr("r", 6).style("stroke", color).style("fill", "burlywood")
                 .on("click", function(d) {
                     let fill = this.style.fill;
                     this.setAttribute("stroke-width", 5 - parseInt(this.getAttribute("stroke-width")));
-                    this.style.fill = fill == "white"? "lightgray" : "white";
+                    this.style.fill = fill == "burlywood"? "lightgray" : "burlywood";
                 })
                     .append("title").text(note.toUpperCase())
                 ;
@@ -275,14 +285,14 @@ var Fretboard = function(config) {
         });
     };
 
-
+    // Reset notes
     instance.clearNotes = function() {
         instance.svgContainer
             .selectAll(".note")
             .remove();
     };
 
-
+    // Reset fretboard
     instance.clear = function() {
         d3.select("#" + id).selectAll(".fretnum,.tuning").remove();
         instance.svgContainer
