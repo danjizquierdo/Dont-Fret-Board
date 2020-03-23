@@ -315,7 +315,7 @@ var Fretboard = function(config) {
 
 
 
-
+// Option 1
 // Code taken from http://bl.ocks.org/williaster/10ef968ccfdc71c30ef8 as example of dropdown
 // Function unchanged from example
 var updateBars = function(data) {
@@ -356,6 +356,7 @@ var dropdownChange = function() {
                     this.style.fill = fill == "burlywood"? "lightgray" : "burlywood";
 }
 
+// Option 1
 var dropdown = d3.select('fretboard')
     .insert('select', 'svg')
     .on('change', dropdownChange);
@@ -379,3 +380,33 @@ dropdown.selectAll('scale')
 
 var initialData = "C major"
 ;
+
+
+// Option 2
+// code adapted from https://blockbuilder.org/AveryBurke/9734359f1a5cedda461611b653701dc7
+
+var selector = d3.select('fretboard')
+    .append('select')
+    .atrt('id', 'keyselector')
+    .selectAll('option')
+    .data(Object.keys(Scales))
+    .enter().append('option')
+    .text(function(d) { return d; })
+    .attr('value', function (d,i) { return i; });
+
+d3.select('#keyselector').property('text', 'C')
+
+d3.select('keyselector')
+    .on('change', function(d) {
+        key = this.text
+        scale = d3.select('scaleselector')
+                    .select('option')
+                    .attr('text')
+        update(key+' '+scale);
+    })
+
+function update(scalename){
+    d3.select('fretboard')
+        .data(data)
+        .scale(scalename);
+}
